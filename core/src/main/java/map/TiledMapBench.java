@@ -1,5 +1,9 @@
 package map;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -17,6 +21,7 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.games.shadowrealms.*;
 
@@ -32,6 +37,8 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	private BitmapFont font;
 	private SpriteBatch batch;
 	private int CameraSpeed = 20;
+	private static Random rnd = new Random();
+	private List<BSPNode> rooms= new ArrayList<>();;
 	int tileSize = 16;
 	//
 	
@@ -53,7 +60,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		    }
 		}
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false,720, 720);
+		camera.setToOrtho(false,320, 320);
 		camera.update();
 		cameraController = new OrthoCamController(camera);
 		Gdx.input.setInputProcessor(cameraController);
@@ -61,7 +68,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		font = new BitmapFont();
 		batch = new SpriteBatch();
 		BSPNode node = new BSPNode(0,0,mapWidth,mapHeight);
-		split(node,30);
+		split(node,50);
 		createRooms(node);
 		connectRooms(node);
 		tiles = new Texture("Dungeon_Tileset.png");
@@ -83,7 +90,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 //			}
 //			layers.add(layer);
 //		}
-		TiledMapTileLayer layer1 = new TiledMapTileLayer(512, 512, 16, 16);
+		TiledMapTileLayer layer1 = new TiledMapTileLayer(mapWidth, mapHeight, 16, 16);
 		for (int x = 0; x < mapWidth; x++) {
 	        for (int y = 0; y < mapHeight; y++) {
 	        	Cell cell = new Cell();
@@ -113,15 +120,6 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		  renderer.render();
 		 
 		batch.begin();
-//		for (int x = 0; x < mapWidth; x++) {
-//	        for (int y = 0; y < mapHeight; y++) {
-//	            if (mapArray[x][y] == 1) {
-//	                batch.draw(wallTexture, x * tileSize, y * tileSize , wallTexture.getRegionWidth()*4 , wallTexture.getRegionWidth()*4);
-//	            } else {
-//	                batch.draw(floorTexture, x * tileSize, y * tileSize , floorTexture.getRegionWidth()*4 , floorTexture.getRegionWidth()*4);
-//	            }
-//	        }
-//	    }
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		batch.end();
 	}
@@ -176,21 +174,21 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
     }
 	
 	void split(BSPNode node, int minRoomSize) {
-	    if (node.width <= minRoomSize  && node.height <= minRoomSize) return;
+	    if (node.width <= minRoomSize*2  && node.height <= minRoomSize*2) return;
 
 	    boolean splitHorizontally = node.width < node.height; // Favor splitting the longer dimension.
 	    if (node.width == node.height) splitHorizontally = Math.random() > 0.5;
 
 	    if (splitHorizontally) {
-	        int splitPoint = (int) (Math.random() * (node.height - minRoomSize * 2)) + minRoomSize;
+	        int splitPoint = (int) (rnd.nextInt(node.height - minRoomSize * 2)) + minRoomSize;
 	        node.left = new BSPNode(node.x, node.y, node.width, splitPoint);
 	        node.right = new BSPNode(node.x, node.y + splitPoint, node.width, node.height - splitPoint);
 	    } else {
-	        int splitPoint = (int) (Math.random() * (node.width - minRoomSize * 2)) + minRoomSize;
+	        int splitPoint = (int) (rnd.nextInt(node.width - minRoomSize * 2)) + minRoomSize;
 	        node.left = new BSPNode(node.x, node.y, splitPoint, node.height);
 	        node.right = new BSPNode(node.x + splitPoint, node.y, node.width - splitPoint, node.height);
 	    }
-
+	    
 	    // Recursively split the children nodes.
 	    split(node.left, minRoomSize);
 	    split(node.right, minRoomSize);
@@ -200,11 +198,11 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	        if (node.left != null) createRooms(node.left);
 	        if (node.right != null) createRooms(node.right);
 	    } else {
-	        int roomWidth = (int) (Math.random() * (node.width - 16)) + 3; // Random room size.
-	        int roomHeight = (int) (Math.random() * (node.height - 16)) + 3;
+	        int roomWidth = (int) (Math.random() * (node.width - 10)) + 8; // Random room size.
+	        int roomHeight = (int) (Math.random() * (node.height - 10)) + 8;
 	        int roomX = node.x + (int) (Math.random() * (node.width - roomWidth));
 	        int roomY = node.y + (int) (Math.random() * (node.height - roomHeight));
-
+	        node.setIsRoom(true, roomX, roomY, roomHeight, roomWidth);
 	        for (int x = roomX; x < roomX + roomWidth; x++) {
 	            for (int y = roomY; y < roomY + roomHeight; y++) {
 	                mapArray[x][y] = 0; // Mark room tiles as empty space.
@@ -212,33 +210,62 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	        }
 	    }
 	}
-	void connectRooms(BSPNode node) {
-	    if (!node.isLeaf()) {
-	        connectRooms(node.left);
-	        connectRooms(node.right);
-
-	        // Get a random point from each child node's room.
-	        BSPNode left = node.left;
-	        BSPNode right = node.right;
-
-	        int x1 = left.x + left.width / 2;
-	        int y1 = left.y + left.height / 2;
-	        int x2 = right.x + right.width / 2;
-	        int y2 = right.y + right.height / 2;
-
-	        // Create a horizontal corridor.
-	        // add different Texture for entry and exit as doors 
-	        for (int x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
-	            mapArray[x][y1] = 0;
-	            mapArray[x][y1+1] = 0;
-	        }
-	        // Create a vertical corridor.
-	        for (int y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
-	            mapArray[x2][y] = 0;
-	            mapArray[x2+1][y] = 0;
-	        }
-	    }
+	void connect2Rooms(BSPNode node1 ,BSPNode node2) {
+		BSPNode left = node1;
+        BSPNode right = node2;
+        if(left.isRoom() == true && right.isRoom()==true) {
+        	
+        	int x1 = left.getRoomX() + left.getRoomWidth() / 2;
+        	int y1 = left.getRoomY() + left.getRoomHeight() / 2;
+        	int x2 = right.getRoomX() + right.getRoomWidth() / 2;
+        	int y2 = right.getRoomY() + right.getRoomHeight() / 2;
+        	
+        	// Create a horizontal corridor.
+        	// add different Texture for entry and exit as doors 
+        	while (x1 != x2) {
+        		mapArray[x1][y1] = 0; // Example: marking the path as walkable
+        		x1 += (x2 > x1) ? 1 : -1; // Move left or right
+        	}
+        	
+        	// Move vertically towards y2
+        	while (y1 != y2) {
+        		mapArray[x1][y1] = 0; // Example: marking the path as walkable
+        		y1 += (y2 > y1) ? 1 : -1; // Move up or down
+        	}
+        }
+    }
+	
+	void findRooms(BSPNode node, List<BSPNode> rms) {
+		if(node.isLeaf()){
+			if(node.isRoom()) {
+				rms.add(node);
+			}else {
+				return;
+			}
+		}else {
+			findRooms(node.left,rms);
+			findRooms(node.right,rms);
+			
+		}
 	}
-
+	void connectRooms(BSPNode node) {
+		
+		findRooms(node,rooms);
+		
+		for (int i = 0; i < rooms.size()-1; i ++) {
+			connect2Rooms(rooms.get(i),rooms.get(i+1));
+		}
+	    
+	}
+	
+	public Vector2 findFirstWalkable() {
+		
+		BSPNode n ;
+		n = rooms.getFirst();
+		
+		
+		return new Vector2(n.getRoomX(), n.getRoomY());
+	    
+	}
 
 }
