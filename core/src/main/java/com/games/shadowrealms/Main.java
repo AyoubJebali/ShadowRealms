@@ -68,7 +68,7 @@ public class Main extends Game {
         // Clear the screen
         //Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
-        batch.draw(currentFrame, x, y , currentFrame.getRegionWidth() , currentFrame.getRegionWidth());
+        batch.draw(currentFrame, x, y , currentFrame.getRegionWidth()*2 , currentFrame.getRegionWidth()*2);
         batch.end();
     }
     private void input() {
