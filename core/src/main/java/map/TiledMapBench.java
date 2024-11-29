@@ -63,7 +63,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		BSPNode node = new BSPNode(0,0,mapWidth,mapHeight);
 		split(node,30);
 		createRooms(node);
-		//connectRooms(node);
+		connectRooms(node);
 		tiles = new Texture("Dungeon_Tileset.png");
 		TextureRegion[][] splitTiles = TextureRegion.split(tiles, 16, 16);
 		floorTexture = splitTiles[8][8];
