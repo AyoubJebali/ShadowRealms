@@ -1,5 +1,7 @@
 package entity;
 
+
+
 public class Player extends Entity {
 	
 	
@@ -8,6 +10,8 @@ public class Player extends Entity {
 		super(id);
 		// TODO Auto-generated constructor stub
 	}
+
+	
 	
 	
 }
