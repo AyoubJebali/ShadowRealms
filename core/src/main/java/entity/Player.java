@@ -11,31 +11,31 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Player extends Entity {
     private Animation<TextureRegion> walkDown, walkUp, walkLeft, walkRight, idle;
-    private Animation<TextureRegion> currentAnimation;
-    private float stateTime; // Keeps track of the elapsed time for animation
+    private Animation<TextureRegion> currentAnimation = idle;
+    private float stateTime=0f; // Keeps track of the elapsed time for animation
     private int Direction; // Tracks the direction: 0 = down, 1 = up, 2 = left, 3 = right
 
     public Player() {
-        super(100, 100, 200); // Initial position (x, y) and speed
+        super(1280, 100, 150); // Initial position (x, y) and speed
+     // Load textures for all animations
+        loadAnimations();
+    }
+    public Player(int x , int y , int speed) {
+        super(x, y, speed); // Initial position (x, y) and speed
 
         // Load textures for all animations
-        walkDown = createAnimation("run_down_40x40.png");
-        walkUp = createAnimation("run_up_40x40.png");
-        walkLeft = createAnimation("run_left_40x40.png");
-        walkRight = createAnimation("run_right_40x40.png");
-        idle = createAnimation("idle_down_40x40.png");
-
+        loadAnimations();
         // Default animation
         currentAnimation = idle;
         stateTime = 0f;
     }
 
-    private Animation<TextureRegion> createAnimation(String texturePath) {
+    private Animation<TextureRegion> createAnimation(String texturePath , int numberFrames) {
         Texture texture = new Texture(Gdx.files.internal(texturePath));
         TextureRegion[][] tempFrames = TextureRegion.split(texture, 40, 40); // Assuming each frame is 40x40
-        TextureRegion[] frames = new TextureRegion[4]; // Assuming 4 frames for animation
+        TextureRegion[] frames = new TextureRegion[numberFrames]; // Assuming 4 frames for animation
 
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < numberFrames; i++) {
             frames[i] = tempFrames[0][i]; // Assuming 4 frames in one row
         }
 
@@ -50,7 +50,8 @@ public class Player extends Entity {
         TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
 
         // Draw the current frame at the player's position
-        batch.draw(currentFrame, x, y);
+        batch.draw(currentFrame, x, y ,currentFrame.getRegionWidth()*2, currentFrame.getRegionHeight()*2 );
+        
     }
 
     @Override
@@ -90,10 +91,14 @@ public class Player extends Entity {
         }
 
         // Keep player within screen bounds
-        x = Math.max(0, Math.min(x, Gdx.graphics.getWidth() - 40)); // Adjust for sprite width
-        y = Math.max(0, Math.min(y, Gdx.graphics.getHeight() - 40)); // Adjust for sprite height
+        
     }
-
+    public float getX() {
+    	return x;
+    }
+    public float getY() {
+    	return x;
+    }
     @Override
     public void dispose() {
         // Dispose of all textures used in the animations
@@ -102,5 +107,12 @@ public class Player extends Entity {
         walkLeft.getKeyFrames()[0].getTexture().dispose();
         walkRight.getKeyFrames()[0].getTexture().dispose();
         idle.getKeyFrames()[0].getTexture().dispose();
+    }
+    void loadAnimations() {
+    	 walkDown = createAnimation("run_down_40x40.png" ,6);
+         walkUp = createAnimation("run_up_40x40.png" ,6);
+         walkLeft = createAnimation("run_left_40x40.png",6);
+         walkRight = createAnimation("run_right_40x40.png",6);
+         idle = createAnimation("idle_down_40x40.png",4);
     }
 }

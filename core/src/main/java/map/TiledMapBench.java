@@ -42,7 +42,9 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	int tileSize = 16;
 	//
 	
+	
 	private TextureRegion  wallTexture;
+	private TextureRegion  wallUpTexture;
 	private TextureRegion  floorTexture;
 	int[][] mapArray ; // 2D array to store the map tiles.
 	int mapWidth = 200; // Map width in tiles.
@@ -60,7 +62,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		    }
 		}
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false,320, 320);
+		camera.setToOrtho(false,3200, 3200);
 		camera.update();
 		cameraController = new OrthoCamController(camera);
 		Gdx.input.setInputProcessor(cameraController);
@@ -73,8 +75,10 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		connectRooms(node);
 		tiles = new Texture("Dungeon_Tileset.png");
 		TextureRegion[][] splitTiles = TextureRegion.split(tiles, 16, 16);
-		floorTexture = splitTiles[8][8];
-		wallTexture = splitTiles[1][6];
+		floorTexture = splitTiles[1][6];
+		wallTexture = splitTiles[7][8];
+		wallUpTexture = splitTiles[5][1];
+		camera.position.set(1600, 1600, 0);
 		map = new TiledMap();
 //		MapLayers layers = map.getLayers();
 //		for (int l = 0; l < 20; l++) {
@@ -95,11 +99,19 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	        for (int y = 0; y < mapHeight; y++) {
 	        	Cell cell = new Cell();
 	            if (mapArray[x][y] == 1) {
-	            	cell.setTile(new StaticTiledMapTile(wallTexture));
+	            	if(y>0 && mapArray[x][y-1] == 0) {
+	            		cell.setTile(new StaticTiledMapTile(wallUpTexture));
+	            	}else {
+	            		
+	            		cell.setTile(new StaticTiledMapTile(wallTexture));
+	            	}
 	            	layer1.setCell(x, y, cell);
 	                //batch.draw(wallTexture, x * tileSize, y * tileSize , wallTexture.getRegionWidth()*4 , wallTexture.getRegionWidth()*4);
 	            } else {
-	            	cell.setTile(new StaticTiledMapTile(floorTexture));
+	            	
+	            		
+	            		cell.setTile(new StaticTiledMapTile(floorTexture));
+	            	
 	            	layer1.setCell(x, y, cell);
 	                //batch.draw(floorTexture, x * tileSize, y * tileSize , floorTexture.getRegionWidth()*4 , floorTexture.getRegionWidth()*4);
 	            }
@@ -114,13 +126,13 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	public void render () {
 		ScreenUtils.clear(100f / 255f, 100f / 255f, 250f / 255f, 1f);
 		
-		  input(); 
-		  camera.update(); 
-		  renderer.setView(camera); 
-		  renderer.render();
-		 
+		input(); 
+		camera.update(); 
+		renderer.setView(camera); 
+		renderer.render();
+		System.out.println(camera.position.x);
 		batch.begin();
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
+		//font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		batch.end();
 	}
 
@@ -223,13 +235,15 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
         	// Create a horizontal corridor.
         	// add different Texture for entry and exit as doors 
         	while (x1 != x2) {
-        		mapArray[x1][y1] = 0; // Example: marking the path as walkable
+        		mapArray[x1][y1] = 0;
+        		mapArray[x1][y1+1] = 0;// Example: marking the path as walkable
         		x1 += (x2 > x1) ? 1 : -1; // Move left or right
         	}
         	
         	// Move vertically towards y2
         	while (y1 != y2) {
-        		mapArray[x1][y1] = 0; // Example: marking the path as walkable
+        		mapArray[x1][y1] = 0;
+        		mapArray[x1+1][y1] = 0;// Example: marking the path as walkable
         		y1 += (y2 > y1) ? 1 : -1; // Move up or down
         	}
         }
@@ -263,8 +277,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		BSPNode n ;
 		n = rooms.getFirst();
 		
-		
-		return new Vector2(n.getRoomX(), n.getRoomY());
+		return new Vector2(n.getRoomX()+n.getRoomWidth()/2, n.getRoomY()+n.getRoomHeight()/2);
 	    
 	}
 
