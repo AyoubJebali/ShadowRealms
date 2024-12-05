@@ -9,12 +9,14 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+import map.TiledMapBench;
+
 public class Player extends Entity {
     private Animation<TextureRegion> walkDown, walkUp, walkLeft, walkRight, idle;
     private Animation<TextureRegion> currentAnimation = idle;
     private float stateTime=0f; // Keeps track of the elapsed time for animation
     private int Direction; // Tracks the direction: 0 = down, 1 = up, 2 = left, 3 = right
-
+    private TiledMapBench map;
     public Player() {
         super(1280, 100, 150); // Initial position (x, y) and speed
      // Load textures for all animations
@@ -56,6 +58,7 @@ public class Player extends Entity {
 
     @Override
     public void handleInput() {
+    	
         float deltaTime = Gdx.graphics.getDeltaTime(); // Handle movement based on deltaTime
 
         boolean isMoving = false;
@@ -84,7 +87,7 @@ public class Player extends Entity {
             currentAnimation = walkDown;
             isMoving = true;
         }
-
+        
         // If not moving, reset to idle animation
         if (!isMoving) {
             currentAnimation = idle;
@@ -99,6 +102,10 @@ public class Player extends Entity {
     public float getY() {
     	return x;
     }
+    public void setMap(TiledMapBench m) {
+    	map = m;
+    }
+    
     @Override
     public void dispose() {
         // Dispose of all textures used in the animations

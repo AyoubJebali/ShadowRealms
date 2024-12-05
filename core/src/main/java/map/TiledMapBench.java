@@ -43,9 +43,8 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	//
 	
 	
-	private TextureRegion  wallTexture;
-	private TextureRegion  wallUpTexture;
-	private TextureRegion  floorTexture;
+	private TextureRegion  wallTexture, wallRightTexture , wallLeftTexture , wallUpTexture , wallDownTexture;
+	private TextureRegion  floorTexture ;
 	int[][] mapArray ; // 2D array to store the map tiles.
 	int mapWidth = 200; // Map width in tiles.
 	int mapHeight = 200; // Map height in tiles.
@@ -62,7 +61,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		    }
 		}
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false,3200, 3200);
+		camera.setToOrtho(false,320, 320);
 		camera.update();
 		cameraController = new OrthoCamController(camera);
 		Gdx.input.setInputProcessor(cameraController);
@@ -78,7 +77,11 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		floorTexture = splitTiles[1][6];
 		wallTexture = splitTiles[7][8];
 		wallUpTexture = splitTiles[5][1];
-		camera.position.set(1600, 1600, 0);
+		wallRightTexture = splitTiles[1][5];
+		wallLeftTexture = splitTiles[1][0];
+		wallDownTexture = splitTiles[4][1];
+		Vector2 pos = this.findFirstWalkable();
+		camera.position.set(pos.x*16, pos.y*16, 0);
 		map = new TiledMap();
 //		MapLayers layers = map.getLayers();
 //		for (int l = 0; l < 20; l++) {
@@ -101,8 +104,14 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	            if (mapArray[x][y] == 1) {
 	            	if(y>0 && mapArray[x][y-1] == 0) {
 	            		cell.setTile(new StaticTiledMapTile(wallUpTexture));
-	            	}else {
-	            		
+	            	}else if(y<mapHeight-1 && mapArray[x][y+1] == 0){
+	            		cell.setTile(new StaticTiledMapTile(wallDownTexture));
+	            	}else if(x>0 && mapArray[x-1][y] == 0) {
+	            		cell.setTile(new StaticTiledMapTile(wallRightTexture));
+	            	}else if(x<mapWidth-1 && mapArray[x+1][y] == 0) {
+	            		cell.setTile(new StaticTiledMapTile(wallLeftTexture));
+	            	}
+	            	else{
 	            		cell.setTile(new StaticTiledMapTile(wallTexture));
 	            	}
 	            	layer1.setCell(x, y, cell);
@@ -132,7 +141,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		renderer.render();
 		System.out.println(camera.position.x);
 		batch.begin();
-		//font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
+		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		batch.end();
 	}
 
