@@ -4,13 +4,17 @@ package com.games.shadowrealms;
 import com.badlogic.gdx.Game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import entity.Player;
 import entity.Enemy;
 
+
+import entity.Player;
 import map.TiledMapBench;
 
 public class Main extends Game {
     private SpriteBatch batch;
+
     private Player player;
     private Enemy enemy;
 
@@ -25,10 +29,12 @@ public class Main extends Game {
         // Initialize the player
         player = new Player();
         enemy = new Enemy(player);
+
     }
 
     @Override
     public void render() {
+
         // Update game logic
         player.handleInput();
 
@@ -39,13 +45,14 @@ public class Main extends Game {
         batch.begin();
         player.render(batch);
         enemy.render(batch);
+
         batch.end();
 
         // Render health bar separately
        
 
     }
-
+    
     @Override
     public void dispose() {
         batch.dispose();

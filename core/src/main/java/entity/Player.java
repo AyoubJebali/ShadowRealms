@@ -1,9 +1,12 @@
 package entity;
 
+
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
@@ -22,10 +25,12 @@ public class Player {
         this.stateTime = 0f;
 
         // Load animations (replace with correct paths)
+
         walkDown = createAnimation("run_down_40x40.png");
         walkUp = createAnimation("run_up_40x40.png");
         walkLeft = createAnimation("run_left_40x40.png");
         walkRight = createAnimation("run_right_40x40.png");
+
         attackDown = createAnimation("attack_down_40x40.png");
         attackUp = createAnimation("attack_up_40x40.png");
         attackLeft = createAnimation("attack_left_40x40.png");
@@ -34,10 +39,12 @@ public class Player {
 
         // Default to idle animation
         currentAnimation = idle;
+
     }
 
     private Animation<TextureRegion> createAnimation(String texturePath) {
         Texture texture = new Texture(Gdx.files.internal(texturePath));
+
         TextureRegion[][] tempFrames = TextureRegion.split(texture, 40, 40);
         TextureRegion[] frames = new TextureRegion[4]; // Assuming 4 frames per animation
 
@@ -62,24 +69,31 @@ public class Player {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             x -= speed * deltaTime;
             direction = 2; // Left
+
             currentAnimation = walkLeft;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             x += speed * deltaTime;
+
             direction = 3; // Right
+
             currentAnimation = walkRight;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             y += speed * deltaTime;
+
             direction = 1; // Up
+
             currentAnimation = walkUp;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             y -= speed * deltaTime;
+
             direction = 0; // Down
+
             currentAnimation = walkDown;
             isMoving = true;
         }
@@ -96,9 +110,11 @@ public class Player {
         }
 
         // If not moving or attacking, use idle animation
+
         if (!isMoving) {
             currentAnimation = idle;
         }
+
 
         // Keep the player within screen bounds
         x = Math.max(0, Math.min(x, Gdx.graphics.getWidth() - 40));
@@ -127,3 +143,4 @@ public class Player {
 		return y;
 	}
 }
+
