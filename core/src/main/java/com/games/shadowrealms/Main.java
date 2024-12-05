@@ -1,5 +1,6 @@
 package com.games.shadowrealms;
 
+
 import com.badlogic.gdx.Game;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -42,12 +43,15 @@ public class Main extends Game {
 
         // Render health bar separately
        
+
     }
 
     @Override
     public void dispose() {
         batch.dispose();
+
         player.dispose();
         map.dispose();
+
     }
 }
