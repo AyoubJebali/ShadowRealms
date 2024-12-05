@@ -69,6 +69,18 @@ public class Player {
         
 
     }
+    private Animation<TextureRegion> createAnimation(String texturePath) {
+        Texture texture = new Texture(Gdx.files.internal(texturePath));
+
+        TextureRegion[][] tempFrames = TextureRegion.split(texture, 40, 40);
+        TextureRegion[] frames = new TextureRegion[4]; // Assuming 4 frames per animation
+
+        for (int i = 0; i < 4; i++) {
+            frames[i] = tempFrames[0][i]; // Extract the first row of frames
+        }
+
+        return new Animation<>(0.1f, frames); // 0.1 seconds per frame
+    }
 
     public void handleInput() {
 
@@ -158,7 +170,7 @@ public class Player {
          walkRight = createAnimation("run_right_40x40.png",6);
          idle = createAnimation("idle_down_40x40.png",4);
     }
-}
+
 
 
 	public float getX() {
