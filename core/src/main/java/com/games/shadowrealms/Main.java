@@ -30,10 +30,12 @@ public class Main extends Game {
         player = new Player();
         enemy = new Enemy(player);
 
+
     }
 
     @Override
     public void render() {
+
 
         // Update game logic
         player.handleInput();
@@ -42,14 +44,17 @@ public class Main extends Game {
         map.render();
 
         // Render player and other entities
+
         batch.begin();
         player.render(batch);
         enemy.render(batch);
 
         batch.end();
 
+
         // Render health bar separately
        
+
 
     }
     
@@ -57,8 +62,10 @@ public class Main extends Game {
     public void dispose() {
         batch.dispose();
 
+
         player.dispose();
         map.dispose();
+
 
     }
 }
