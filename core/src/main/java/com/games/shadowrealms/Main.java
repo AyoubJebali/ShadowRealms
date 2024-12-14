@@ -1,18 +1,22 @@
 package com.games.shadowrealms;
 
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import com.badlogic.gdx.graphics.GL20;
 import entity.Player;
 import entity.Enemy;
 import entity.HealthBar;
+
 import map.TiledMapBench;
 
 import entity.Audio;
 
 public class Main extends Game {
     private SpriteBatch batch;
+
     private Player player;
     private Enemy enemy;
     private TiledMapBench map; // Map handler
@@ -36,36 +40,46 @@ public class Main extends Game {
         map = new TiledMapBench();
         map.create();
 
+
         // Initialize audio if needed (optional)
         // audio = new Audio(); // Uncomment if `Audio` has a proper constructor
+
     }
 
     @Override
     public void render() {
+
         // Clear the screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-       
+
 
         // Handle input and update entities
         player.handleInput();
         enemy.update();
 
-        // Begin rendering
+
         batch.begin();
         map.render();
         player.render(batch);
         enemy.render(batch);
-        batch.end();
-    }
 
+
+    
+
+
+    }
+    
     @Override
     public void dispose() {
         // Dispose resources
         batch.dispose();
+
+
         player.dispose();
         enemy.dispose();
         map.dispose();
+
 
         // Dispose audio safely
         if (audio != null) {
@@ -75,6 +89,7 @@ public class Main extends Game {
         // Dispose the health bar
         healthBar.dispose();
         MonsterHealth.dispose();
+
     }
 }
 

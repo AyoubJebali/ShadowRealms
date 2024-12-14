@@ -1,9 +1,13 @@
 package entity;
 
+
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
@@ -29,6 +33,7 @@ public class Player {
         this.healthBar = healthBar;
 
         // Load animations (replace with correct paths)
+
         walkDown = createAnimation("run_down_40x40.png",6);
         walkUp = createAnimation("run_up_40x40.png",6);
         walkLeft = createAnimation("run_left_40x40.png",6);
@@ -53,7 +58,10 @@ public class Player {
     }
 
     private Animation<TextureRegion> createAnimation(String texturePath, int frmes) {
+
         Texture texture = new Texture(Gdx.files.internal(texturePath));
+
+
         TextureRegion[][] tempFrames = TextureRegion.split(texture, 40, 40);
 
         // Dynamically create the frames array
@@ -61,6 +69,7 @@ public class Player {
 
         for (int i = 0; i < frmes; i++) {
             frames[i] = tempFrames[0][i]; // Extract the first row of frames
+
         }
 
         return new Animation<>(0.1f, frames); // 0.1 seconds per frame
@@ -70,18 +79,23 @@ public class Player {
         stateTime += Gdx.graphics.getDeltaTime();
         TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
 
+
         // Draw player sprite
-       
-        batch.draw(currentFrame, x, y);
-        
-       batch.end();
+       batch.begin();
+        // Draw the current frame at the player's position
+        batch.draw(currentFrame, x, y ,currentFrame.getRegionWidth()*2, currentFrame.getRegionHeight()*2 );
         // Render health bar at a position relative to the player
         healthBar.render(x, y + 50);
-        batch.begin();// Adjust height as needed
+       batch.end(); 
+
     }
 
     public void handleInput() {
-        float deltaTime = Gdx.graphics.getDeltaTime();
+
+    	
+        float deltaTime = Gdx.graphics.getDeltaTime(); // Handle movement based on deltaTime
+
+
         boolean isMoving = false;
         
 
@@ -89,27 +103,35 @@ public class Player {
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             x -= speed * deltaTime;
             direction = 2; // Left
+
             currentAnimation = walkLeft;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             x += speed * deltaTime;
+
             direction = 3; // Right
+
             currentAnimation = walkRight;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             y += speed * deltaTime;
+
             direction = 1; // Up
+
             currentAnimation = walkUp;
             isMoving = true;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             y -= speed * deltaTime;
+
             direction = 0; // Down
+
             currentAnimation = walkDown;
             isMoving = true;
         }
+
 
         // Handle attack input
         if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
@@ -125,6 +147,8 @@ public class Player {
         }
 
         // If not moving or attacking, use idle animation
+
+
         if (!isMoving) {
             switch (direction) {
                 case 0 -> currentAnimation = idleDown;
@@ -134,10 +158,13 @@ public class Player {
             }
         }
 
+
+
         // Keep the player within screen bounds
         x = Math.max(0, Math.min(x, Gdx.graphics.getWidth() - 40));
         y = Math.max(0, Math.min(y, Gdx.graphics.getHeight() - 40));
     }
+
 
     public void takeDamage(int damage) {
         health -= damage;
@@ -178,10 +205,33 @@ public class Player {
         return y;
     }
 
+
     public void dispose() {
         // Dispose animations and health bar
         healthBar.dispose();
     }
     
 
+
+    void loadAnimations() {
+    	 walkDown = createAnimation("run_down_40x40.png" ,6);
+         walkUp = createAnimation("run_up_40x40.png" ,6);
+         walkLeft = createAnimation("run_left_40x40.png",6);
+         walkRight = createAnimation("run_right_40x40.png",6);
+         idle = createAnimation("idle_down_40x40.png",4);
+    }
+
+
+
+	public float getX() {
+		// TODO Auto-generated method stub
+		return x;
+	}
+	public float getY() {
+		// TODO Auto-generated method stub
+		return y;
+	}
+
 }
+
+
