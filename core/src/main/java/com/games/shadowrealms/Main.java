@@ -16,12 +16,12 @@ import entity.Audio;
 
 public class Main extends Game {
     private SpriteBatch batch;
-
     private Player player;
     private Enemy enemy;
     private TiledMapBench map; // Map handler
     private Audio audio;
     private HealthBar healthBar, MonsterHealth;
+
 
     @Override
     public void create() {
@@ -41,8 +41,14 @@ public class Main extends Game {
         map.create();
 
 
+        // Initialize the player
+        //player = new Player(map);
+        
+
+
         // Initialize audio if needed (optional)
         // audio = new Audio(); // Uncomment if `Audio` has a proper constructor
+
 
     }
 
@@ -62,11 +68,14 @@ public class Main extends Game {
         batch.begin();
         map.render();
         player.render(batch);
+
         enemy.render(batch);
 
 
     
 
+
+        batch.end();
 
     }
     
@@ -74,8 +83,6 @@ public class Main extends Game {
     public void dispose() {
         // Dispose resources
         batch.dispose();
-
-
         player.dispose();
         enemy.dispose();
         map.dispose();
