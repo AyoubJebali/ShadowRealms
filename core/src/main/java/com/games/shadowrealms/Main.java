@@ -14,10 +14,8 @@ import map.TiledMapBench;
 
 public class Main extends Game {
     private SpriteBatch batch;
-
     private Player player;
     private Enemy enemy;
-
     private TiledMapBench map;
 
     @Override
@@ -27,16 +25,13 @@ public class Main extends Game {
         map.create();
 
         // Initialize the player
-        player = new Player();
-        enemy = new Enemy(player);
-
+        player = new Player(map);
+        
 
     }
 
     @Override
     public void render() {
-
-
         // Update game logic
         player.handleInput();
 
@@ -47,22 +42,15 @@ public class Main extends Game {
 
         batch.begin();
         player.render(batch);
-        enemy.render(batch);
-
-        batch.end();
-
-
-        // Render health bar separately
        
 
+        batch.end();
 
     }
     
     @Override
     public void dispose() {
         batch.dispose();
-
-
         player.dispose();
         map.dispose();
 
