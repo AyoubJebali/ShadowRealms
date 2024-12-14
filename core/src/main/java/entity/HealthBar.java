@@ -1,12 +1,14 @@
 package entity;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class HealthBar {
     private float x, y, width, height;
     private int currentHealth, maxHealth;
     private ShapeRenderer shapeRenderer;
+
 
     public HealthBar(float x, float y, float width, float height, int currentHealth, int maxHealth) {
         this.x = x;
@@ -18,35 +20,41 @@ public class HealthBar {
         shapeRenderer = new ShapeRenderer();
     }
 
-    // Update the position of the health bar
-    public void setPosition(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
-
+    
+ 
     // Render the health bar
-    public void render() {
+ // Render the health bar at a given position
+    public void render(float playerX, float playerY) {
+    	
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Background (empty health bar)
-        shapeRenderer.setColor(Color.BLACK);
-        shapeRenderer.rect(x, y, width, height);
+        // Border
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(playerX - 2, playerY - 2, width + 4, height + 4);
 
-        // Foreground (filled health bar)
+        // Background
+        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.rect(playerX, playerY, width, height);
+
+        // Foreground with gradient
         float healthPercentage = (float) currentHealth / maxHealth;
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(x, y, width * healthPercentage, height);
+        shapeRenderer.setColor(new Color(1 - healthPercentage, healthPercentage, 0, 1)); // Gradient from red to green
+        shapeRenderer.rect(playerX, playerY, width * healthPercentage, height);
 
         shapeRenderer.end();
+      
     }
+
 
     // Update health
     public void updateHealth(int healthChange) {
         this.currentHealth = Math.max(0, Math.min(this.currentHealth + healthChange, this.maxHealth));
     }
 
-    // Dispose the shape renderer
     public void dispose() {
-        shapeRenderer.dispose();
+        if (shapeRenderer != null) {
+            shapeRenderer.dispose();
+            shapeRenderer = null;  // Set it to null after disposal to avoid multiple dispose calls
+        }
     }
 }
