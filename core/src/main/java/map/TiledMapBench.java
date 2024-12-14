@@ -127,7 +127,6 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		camera.update(); 
 		renderer.setView(camera); 
 		renderer.render();
-		System.out.println("x="+camera.position.x+"y="+camera.position.y);
 		batch.begin();
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		batch.end();
