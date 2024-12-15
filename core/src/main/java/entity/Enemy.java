@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class Enemy {
+public class Enemy extends Entity{
     private float x, y;
     private float speed = 100f;
     private Player player;
@@ -25,6 +25,7 @@ public class Enemy {
     
 
     public Enemy(Player player, String MonsterName, HealthBar MonsterHealth) {
+    	super();
         this.player = player;
         this.x = 300f;
         this.y = 300f;
@@ -117,11 +118,9 @@ public class Enemy {
 
     // Render the enemy using the current animation
     public void render(SpriteBatch batch) {
-        TextureRegion frame = currentAnimation.getKeyFrame(stateTime, true);
-        batch.draw(frame, x, y);
-        batch.end();
-        MonsterHealth.render(0, 0);
-        batch.begin();
+    	TextureRegion frame = currentAnimation.getKeyFrame(stateTime, true);
+    	batch.draw(frame, x, y,frame.getRegionWidth()*2,frame.getRegionHeight()*2);
+        MonsterHealth.render(batch,x+40, y+80);
     }
 
     // Dispose of textures to free up resources
@@ -136,6 +135,12 @@ public class Enemy {
             attack.getKeyFrames()[0].getTexture().dispose();
         }
     }
+
+	@Override
+	public void handleInput() {
+		// TODO Auto-generated method stub
+		
+	}
 
 	
 }

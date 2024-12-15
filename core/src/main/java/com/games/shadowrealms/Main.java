@@ -30,19 +30,19 @@ public class Main extends Game {
 
         // Initialize health bar
         healthBar = new HealthBar(0, 0, 40, 5, 100, 100);
-        MonsterHealth = new HealthBar(0,0,0,0,10,10);
+        MonsterHealth = new HealthBar(0,0,40,5,10,10);
 
-        // Create player and enemy
-        player = new Player(healthBar);
-        enemy = new Enemy(player, "Orc", MonsterHealth);
+        
 
         // Create the map
         map = new TiledMapBench();
         map.create();
-
+        
 
         // Initialize the player
-        //player = new Player(map);
+     // Create player and enemy
+        player = new Player(map);
+        enemy = new Enemy(player, "Orc", MonsterHealth);
         
 
 
@@ -63,18 +63,13 @@ public class Main extends Game {
         // Handle input and update entities
         player.handleInput();
         enemy.update();
+        map.render();
 
 
         batch.begin();
-        map.render();
         player.render(batch);
-
+        
         enemy.render(batch);
-
-
-    
-
-
         batch.end();
 
     }
