@@ -1,5 +1,8 @@
 package map;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -46,9 +49,9 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	private TextureRegion  wallTexture, wallRightTexture , wallLeftTexture , wallUpTexture , wallDownTexture;
 	private TextureRegion  floorTexture ;
 	int[][] mapArray ; // 2D array to store the map tiles.
-	int mapWidth = 200; // Map width in tiles.
+	int mapWidth = 200; // Map width in tiles. 
 	int mapHeight = 200; // Map height in tiles.
-	
+	int[][] rotatedArray;
 	
 	@Override
 	public void create () {
@@ -60,11 +63,6 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		        mapArray[i][j] = 1;
 		    }
 		}
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false,320, 320);
-		camera.update();
-		cameraController = new OrthoCamController(camera);
-		Gdx.input.setInputProcessor(cameraController);
 		
 		font = new BitmapFont();
 		batch = new SpriteBatch();
@@ -72,31 +70,9 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		split(node,50);
 		createRooms(node);
 		connectRooms(node);
-		tiles = new Texture("Dungeon_Tileset.png");
-		TextureRegion[][] splitTiles = TextureRegion.split(tiles, 16, 16);
-		floorTexture = splitTiles[1][6];
-		wallTexture = splitTiles[7][8];
-		wallUpTexture = splitTiles[5][1];
-		wallRightTexture = splitTiles[1][5];
-		wallLeftTexture = splitTiles[1][0];
-		wallDownTexture = splitTiles[4][1];
-		Vector2 pos = this.findFirstWalkable();
-		camera.position.set(pos.x*16, pos.y*16, 0);
+		loadTiles();
+		
 		map = new TiledMap();
-//		MapLayers layers = map.getLayers();
-//		for (int l = 0; l < 20; l++) {
-//			TiledMapTileLayer layer = new TiledMapTileLayer(512, 512, 16, 16);
-//			for (int x = 0; x < 32; x++) {
-//				for (int y = 0; y < 32; y++) {
-//					int tx = (int)(Math.random() * 6);
-//					int ty = (int)(Math.random() * 4);
-//					Cell cell = new Cell();
-//					cell.setTile(new StaticTiledMapTile(splitTiles[ty][tx]));
-//					layer.setCell(x, y, cell);
-//				}
-//			}
-//			layers.add(layer);
-//		}
 		TiledMapTileLayer layer1 = new TiledMapTileLayer(mapWidth, mapHeight, 16, 16);
 		for (int x = 0; x < mapWidth; x++) {
 	        for (int y = 0; y < mapHeight; y++) {
@@ -117,10 +93,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	            	layer1.setCell(x, y, cell);
 	                //batch.draw(wallTexture, x * tileSize, y * tileSize , wallTexture.getRegionWidth()*4 , wallTexture.getRegionWidth()*4);
 	            } else {
-	            	
-	            		
-	            		cell.setTile(new StaticTiledMapTile(floorTexture));
-	            	
+	            	cell.setTile(new StaticTiledMapTile(floorTexture));
 	            	layer1.setCell(x, y, cell);
 	                //batch.draw(floorTexture, x * tileSize, y * tileSize , floorTexture.getRegionWidth()*4 , floorTexture.getRegionWidth()*4);
 	            }
@@ -128,6 +101,21 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	    }
 		map.getLayers().add(layer1);
 		renderer = new OrthogonalTiledMapRenderer(map);
+		
+		rotatedArray = new int[mapWidth][mapHeight];
+		for (int i = 0; i < mapWidth; i++) {
+            for (int j = 0; j < mapHeight; j++) {
+                rotatedArray[mapHeight - j - 1][i] = mapArray[i][j];
+            }
+        }
+		/*
+		 * try (BufferedWriter writer = new BufferedWriter(new
+		 * FileWriter("output.txt"))) { for (int x = 0; x < mapWidth; x++) { for (int y
+		 * = 0; y < mapHeight; y++) { writer.write(rotatedArray[x][y] + " "); // Write
+		 * each element separated by a space } writer.newLine(); // Move to the next
+		 * line after each row } } catch (IOException e) { // TODO Auto-generated catch
+		 * block e.printStackTrace(); }
+		 */
 
 	}
 
@@ -135,11 +123,10 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	public void render () {
 		ScreenUtils.clear(100f / 255f, 100f / 255f, 250f / 255f, 1f);
 		
-		input(); 
+		//input(); 
 		camera.update(); 
 		renderer.setView(camera); 
 		renderer.render();
-		System.out.println(camera.position.x);
 		batch.begin();
 		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
 		batch.end();
@@ -169,30 +156,7 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		batch.dispose();
 		
 	}
-	private void input() {
-    	float deltaTime = Gdx.graphics.getDeltaTime(); // Time elapsed since last frame
-    	
-        // Move left
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            camera.position.x -= CameraSpeed ;
-        }
-
-        // Move right
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-        	camera.position.x += CameraSpeed ;
-        }
-
-        // Move up
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-        	camera.position.y += CameraSpeed ;
-        }
-
-        // Move down
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-        	camera.position.y -= CameraSpeed ;
-        }
-        
-    }
+	
 	
 	void split(BSPNode node, int minRoomSize) {
 	    if (node.width <= minRoomSize*2  && node.height <= minRoomSize*2) return;
@@ -257,6 +221,16 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
         	}
         }
     }
+	void loadTiles() {
+		tiles = new Texture("Dungeon_Tileset.png");
+		TextureRegion[][] splitTiles = TextureRegion.split(tiles, 16, 16);
+		floorTexture = splitTiles[1][6];
+		wallTexture = splitTiles[7][8];
+		wallUpTexture = splitTiles[5][1];
+		wallRightTexture = splitTiles[1][5];
+		wallLeftTexture = splitTiles[1][0];
+		wallDownTexture = splitTiles[4][1];
+	}
 	
 	void findRooms(BSPNode node, List<BSPNode> rms) {
 		if(node.isLeaf()){
@@ -282,12 +256,28 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	}
 	
 	public Vector2 findFirstWalkable() {
-		
 		BSPNode n ;
 		n = rooms.getFirst();
-		
 		return new Vector2(n.getRoomX()+n.getRoomWidth()/2, n.getRoomY()+n.getRoomHeight()/2);
-	    
+	}
+	
+	public void setCamera(OrthographicCamera c) {
+		this.camera = c;
+	}
+	public boolean checkBlockedTile(float x , float y) {
+		int newY = (int) (3200 - 1 - y);
+		int tileX = (int) (x / tileSize);
+        int tileY = (int) (newY / tileSize);
+
+        // Check bounds
+        if (tileX < 0 || tileY < 0 || tileY >= rotatedArray.length || tileX >= rotatedArray[0].length) {
+            // If the position is outside the map, consider it a collision
+            return true;
+        }
+        
+        // Return true if it's a wall (1), false if it's walkable (0)
+        return rotatedArray[tileY][tileX] == 1;
+		
 	}
 
 }
