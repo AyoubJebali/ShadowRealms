@@ -52,5 +52,6 @@ class BSPNode {
     public boolean isLeaf() {
         return left == null && right == null;
     }
+    
 }
 

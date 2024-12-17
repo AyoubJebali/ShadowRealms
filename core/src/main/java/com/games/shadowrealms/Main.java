@@ -32,16 +32,15 @@ public class Main extends Game {
         healthBar = new HealthBar(0, 0, 40, 5, 100, 100);
         MonsterHealth = new HealthBar(0,0,40,5,10,10);
 
-        
-
         // Create the map
         map = new TiledMapBench();
         map.create();
         
-
+        
         // Initialize the player
-     // Create player and enemy
+        // Create player and enemy
         player = new Player(map);
+        
         enemy = new Enemy(player, "Orc", MonsterHealth);
         
 
@@ -60,10 +59,7 @@ public class Main extends Game {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
-        // Handle input and update entities
-        player.handleInput();
-        enemy.update();
-        map.render();
+       
 
 
         batch.begin();
@@ -80,7 +76,6 @@ public class Main extends Game {
         batch.dispose();
         player.dispose();
         enemy.dispose();
-        map.dispose();
 
 
         // Dispose audio safely
