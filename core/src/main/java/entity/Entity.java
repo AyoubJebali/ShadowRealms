@@ -14,7 +14,7 @@ public abstract class Entity {
     }
     public abstract void render(SpriteBatch batch);
 
-    public abstract void handleInput();
+    
 
     public abstract void dispose();
     

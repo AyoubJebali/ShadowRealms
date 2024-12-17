@@ -28,33 +28,21 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.games.shadowrealms.*;
 
-public class TiledMapBench extends InputAdapter implements ApplicationListener {
+public class TiledMapBench extends InputAdapter {
 
 	private TiledMap map;
-	private TiledMapRenderer renderer;
-	private OrthographicCamera camera;
-	private OrthoCamController cameraController;
-	private AssetManager assetManager;
 	private Texture tiles;
-	private Texture texture;
-	private BitmapFont font;
-	private SpriteBatch batch;
-	private int CameraSpeed = 20;
 	private static Random rnd = new Random();
 	private List<BSPNode> rooms= new ArrayList<>();;
 	int tileSize = 16;
-	//
-	
-	
-	private TextureRegion  wallTexture, wallRightTexture , wallLeftTexture , wallUpTexture , wallDownTexture;
-	private TextureRegion  floorTexture ;
+	private TextureRegion  wallTexture, wallRightTexture , wallLeftTexture , wallUpTexture , wallDownTexture , floorTexture;
 	int[][] mapArray ; // 2D array to store the map tiles.
+	int[][] rotatedArray;
 	int mapWidth = 200; // Map width in tiles. 
 	int mapHeight = 200; // Map height in tiles.
-	int[][] rotatedArray;
 	
-	@Override
-	public void create () {
+	
+	public TiledMap create () {
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		mapArray = new int[mapWidth][mapHeight];
@@ -63,15 +51,11 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		        mapArray[i][j] = 1;
 		    }
 		}
-		
-		font = new BitmapFont();
-		batch = new SpriteBatch();
 		BSPNode node = new BSPNode(0,0,mapWidth,mapHeight);
 		split(node,50);
 		createRooms(node);
 		connectRooms(node);
 		loadTiles();
-		
 		map = new TiledMap();
 		TiledMapTileLayer layer1 = new TiledMapTileLayer(mapWidth, mapHeight, 16, 16);
 		for (int x = 0; x < mapWidth; x++) {
@@ -79,29 +63,30 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 	        	Cell cell = new Cell();
 	            if (mapArray[x][y] == 1) {
 	            	if(y>0 && mapArray[x][y-1] == 0) {
-	            		cell.setTile(new StaticTiledMapTile(wallUpTexture));
+	            		cell.setTile(new StaticTiledMapTile(wallUpTexture)); // Wall Up
 	            	}else if(y<mapHeight-1 && mapArray[x][y+1] == 0){
-	            		cell.setTile(new StaticTiledMapTile(wallDownTexture));
+	            		cell.setTile(new StaticTiledMapTile(wallDownTexture)); // Wall Down
 	            	}else if(x>0 && mapArray[x-1][y] == 0) {
-	            		cell.setTile(new StaticTiledMapTile(wallRightTexture));
+	            		cell.setTile(new StaticTiledMapTile(wallRightTexture)); // Wall Right
 	            	}else if(x<mapWidth-1 && mapArray[x+1][y] == 0) {
-	            		cell.setTile(new StaticTiledMapTile(wallLeftTexture));
+	            		cell.setTile(new StaticTiledMapTile(wallLeftTexture)); // Wall Left
 	            	}
 	            	else{
-	            		cell.setTile(new StaticTiledMapTile(wallTexture));
+	            		cell.setTile(new StaticTiledMapTile(wallTexture)); // Default wall outside dungeon
 	            	}
 	            	layer1.setCell(x, y, cell);
-	                //batch.draw(wallTexture, x * tileSize, y * tileSize , wallTexture.getRegionWidth()*4 , wallTexture.getRegionWidth()*4);
 	            } else {
-	            	cell.setTile(new StaticTiledMapTile(floorTexture));
-	            	layer1.setCell(x, y, cell);
-	                //batch.draw(floorTexture, x * tileSize, y * tileSize , floorTexture.getRegionWidth()*4 , floorTexture.getRegionWidth()*4);
+	            	
+	            	
+	            		cell.setTile(new StaticTiledMapTile(floorTexture)); // Ground 
+	            		layer1.setCell(x, y, cell);
+	            	
 	            }
 	        }
 	    }
-		map.getLayers().add(layer1);
-		renderer = new OrthogonalTiledMapRenderer(map);
 		
+		
+		map.getLayers().add(layer1);
 		rotatedArray = new int[mapWidth][mapHeight];
 		for (int i = 0; i < mapWidth; i++) {
             for (int j = 0; j < mapHeight; j++) {
@@ -116,48 +101,9 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		 * line after each row } } catch (IOException e) { // TODO Auto-generated catch
 		 * block e.printStackTrace(); }
 		 */
-
+		return map;
 	}
 
-	@Override
-	public void render () {
-		ScreenUtils.clear(100f / 255f, 100f / 255f, 250f / 255f, 1f);
-		
-		//input(); 
-		camera.update(); 
-		renderer.setView(camera); 
-		renderer.render();
-		batch.begin();
-		font.draw(batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 10, 20);
-		batch.end();
-	}
-
-	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-		batch.dispose();
-		
-	}
-	
-	
 	void split(BSPNode node, int minRoomSize) {
 	    if (node.width <= minRoomSize*2  && node.height <= minRoomSize*2) return;
 
@@ -246,13 +192,10 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		}
 	}
 	void connectRooms(BSPNode node) {
-		
 		findRooms(node,rooms);
-		
 		for (int i = 0; i < rooms.size()-1; i ++) {
 			connect2Rooms(rooms.get(i),rooms.get(i+1));
 		}
-	    
 	}
 	
 	public Vector2 findFirstWalkable() {
@@ -261,23 +204,59 @@ public class TiledMapBench extends InputAdapter implements ApplicationListener {
 		return new Vector2(n.getRoomX()+n.getRoomWidth()/2, n.getRoomY()+n.getRoomHeight()/2);
 	}
 	
-	public void setCamera(OrthographicCamera c) {
-		this.camera = c;
-	}
 	public boolean checkBlockedTile(float x , float y) {
-		int newY = (int) (3200 - 1 - y);
-		int tileX = (int) (x / tileSize);
-        int tileY = (int) (newY / tileSize);
-
+		int newY = (int) (3200 - y);
+		int tileX = (int) ((x+8) / tileSize);
+        int tileY = (int) ((newY-4) / tileSize);
         // Check bounds
         if (tileX < 0 || tileY < 0 || tileY >= rotatedArray.length || tileX >= rotatedArray[0].length) {
             // If the position is outside the map, consider it a collision
             return true;
         }
-        
         // Return true if it's a wall (1), false if it's walkable (0)
         return rotatedArray[tileY][tileX] == 1;
-		
+	}
+	public TiledMap getMap() {
+		return map;
+	}
+	
+	   /**
+     * Generates random positions inside a rectangle where enemies can spawn.
+     * @param startX Top-left corner X position.
+     * @param startY Top-left corner Y position.
+     * @param width  Width of the rectangle.
+     * @param height Height of the rectangle.
+     * @param enemyCount Number of enemy spawn positions to generate.
+     * @return ArrayList of Vector2 positions within the rectangle.
+     */
+	public  ArrayList<Vector2> getRandomEnemySpawnPositions(int startX, int startY, int width, int height, int enemyCount) {
+		// TODO correct room coordinates bcs enemy spawns out of the room
+        ArrayList<Vector2> spawnPositions = new ArrayList<>();
+        Random random = new Random();
+        for (int i = 0; i < enemyCount; i++) {
+            // Generate random x and y within the rectangle's bounds
+            float randomX = (startX-32) + random.nextInt(width-20);
+            float randomY = (startY-32) + random.nextInt(height-20);
+            spawnPositions.add(new Vector2(randomX, randomY));
+        }
+
+        return spawnPositions;
+    }
+	public ArrayList<Vector2> getEnemySpawn(){
+		ArrayList<Vector2> spawnPositions = new ArrayList<>();
+		for (BSPNode room : rooms) {
+	        // Get spawn positions for the current room and add them to the list
+	        spawnPositions.addAll(
+	            getRandomEnemySpawnPositions(
+	                room.getRoomX() * 16,
+	                room.getRoomY() * 16,
+	                room.getRoomWidth() * 16,
+	                room.getRoomHeight() * 16,
+	                20 // Number of spawns per room
+	            )
+	        );
+	    }
+		return spawnPositions;
 	}
 
 }
