@@ -7,7 +7,7 @@ import screens.GameScreen;
 public class ShadowRealms extends Game {
 	
 	public SpriteBatch batch ;
-	
+	private String playerName="";
 	
     
 	@Override
@@ -23,6 +23,12 @@ public class ShadowRealms extends Game {
 		super.dispose();
 		
 		//batch.dispose();
+	}
+	public String getPlayerName() {
+		return this.playerName;
+	}
+	public void setPlayerName(String name) {
+		 this.playerName=name;
 	}
 	
 	@Override

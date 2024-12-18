@@ -39,7 +39,7 @@ public class Hud implements Disposable{
     private GameScreen screen;
     public Hud(SpriteBatch sb , GameScreen screen){
         //define our tracking variables
-        worldTimer = 10;
+        worldTimer = 180;
         timeCount = 0;
         score = 0;
         this.screen = screen;
@@ -96,6 +96,9 @@ public class Hud implements Disposable{
     public static void addScore(int value){
         score += value;
         scoreLabel.setText(String.format("%06d", score));
+    }
+    public int getScore() {
+    	return score;
     }
 
     @Override

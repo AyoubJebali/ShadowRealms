@@ -1,7 +1,14 @@
 package screens;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -19,6 +26,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.games.shadowrealms.ShadowRealms;
 
+import entity.Audio;
 import entity.Enemy;
 import entity.HealthBar;
 import entity.Player;
@@ -28,7 +36,7 @@ import scenes.Hud;
 public class GameScreen implements Screen {
 		
 	private ShadowRealms game;
-	
+	private String FILE_PATH = "C:\\Users\\youss\\eclipse-workspace\\Me\\leaderboard.txt";
 	//basic playscreen variables
     private OrthographicCamera camera;
     private Viewport gamePort;
@@ -43,6 +51,8 @@ public class GameScreen implements Screen {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 	
+	//audio file 
+	private Audio audio;
 	public Integer enemyDefeated;
 	private Array<Enemy> enemies;
 	private ArrayList<Vector2> enemyPositions;
@@ -83,7 +93,9 @@ public class GameScreen implements Screen {
 				enemies.add(new Enemy(this,position.x,position.y, "Orc", MonsterHealth));
 				
 			}
-			
+			// play audio 
+			audio = new Audio("stranger-things-124008.mp3", null);
+	        audio.playMusic(true);
 			
 		}
 	
@@ -112,6 +124,8 @@ public class GameScreen implements Screen {
 		renderer.setView(camera); 
 		
 		if(gameOver()){
+			audio.stopMusic();
+			this.saveScore(hud.getScore());
             game.setScreen(new GameOverScreen(game));
             dispose();
         }
@@ -168,7 +182,7 @@ public class GameScreen implements Screen {
 		// TODO Auto-generated method stub
 		map.dispose();
 		player.dispose();
-		
+		audio.dispose();
 		hud.dispose();
 	}
 	
@@ -189,4 +203,44 @@ public class GameScreen implements Screen {
         }
         return false;
     }
+	void saveScore(int newScore){
+		List<String> lines = new ArrayList<>();
+
+	    // Step 1: Read the file line by line
+	    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {
+	        String line;
+	        while ((line = reader.readLine()) != null) {
+	            String[] parts = line.split(",");
+	            if (parts.length == 2) {
+	            	int score = Integer.parseInt(parts[1].trim());
+	                if (score<0) {
+	                    
+	                    line = parts[0].trim() + "," + newScore;
+	                    game.setPlayerName(parts[0].trim());
+	                    System.out.println(parts[0].trim());
+	                    
+	                }else if (game.getPlayerName().equals(parts[0].trim())) {
+	                	line = parts[0].trim() + "," + newScore;
+	                    
+	                }
+	            }
+	            lines.add(line); // Add the (possibly modified) line back to the list
+	        }
+	    } catch (IOException e) {
+	        
+	        return;
+	    }
+
+	    
+
+	    // Step 3: Write all lines back to the file
+	    try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH))) {
+	        for (String line : lines) {
+	            writer.write(line);
+	            writer.newLine();
+	        }
+	    } catch (IOException e) {
+	        
+	    }
+	}
 }

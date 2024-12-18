@@ -37,10 +37,12 @@ public class Audio {
     }
 
     public void dispose() {
-        
-            backgroundMusic.dispose();
-        
+    	if (backgroundMusic != null) {
+    		backgroundMusic.dispose();
+        }
+    	if (effectSound != null) {
             effectSound.dispose();
+        }
         
     }
 }

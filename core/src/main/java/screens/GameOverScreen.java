@@ -14,10 +14,12 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.games.shadowrealms.ShadowRealms;
 
+import entity.Audio;
+
 public class GameOverScreen implements Screen {
     private Viewport viewport;
     private Stage stage;
-
+    private  Audio audio ;
     private Game game;
 
     public GameOverScreen(ShadowRealms game){
@@ -39,6 +41,9 @@ public class GameOverScreen implements Screen {
         table.add(playAgainLabel).expandX().padTop(10f);
 
         stage.addActor(table);
+        // play audio 
+     	audio = new Audio("gameover.mp3", null);
+     	audio.playMusic(true);
     }
 
     @Override
@@ -49,6 +54,7 @@ public class GameOverScreen implements Screen {
     @Override
     public void render(float delta) {
         if(Gdx.input.justTouched()) {
+        	audio.stopMusic();
             game.setScreen(new GameScreen((ShadowRealms) game));
             dispose();
         }
@@ -79,6 +85,7 @@ public class GameOverScreen implements Screen {
 
     @Override
     public void dispose() {
+    	audio.dispose();
         stage.dispose();
     }
 }
