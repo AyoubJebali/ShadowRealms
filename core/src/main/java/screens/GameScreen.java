@@ -80,19 +80,19 @@ public class GameScreen implements Screen {
 			//create our game HUD for scores/timers/level info
 	        hud = new Hud(game.batch, this);
 	        
+	        // Initialize enemies array
+	        enemies = new Array<Enemy>();
+	        
+	        // FIX: Initialize enemyPositions from map generator
+	        this.enemyPositions = mapGen.getEnemySpawn();
+	        
 			// initiate player
 			player = new Player(this);
-			// enemy for test 
-			HealthBar MonsterHealth = new HealthBar(0,0,40,5,10,10);
-			//this.enemy = new Enemy(this,mapGen.findFirstWalkable().x*16,mapGen.findFirstWalkable().y*16, "Orc", MonsterHealth);
-			
-			this.enemyPositions = mapGen.getEnemySpawn();
-			enemies = new Array<Enemy>();
 			
 			for(Vector2 position : this.enemyPositions) {
-				enemies.add(new Enemy(this,position.x,position.y, "Orc", MonsterHealth));
-				
-			}
+		        HealthBar enemyHealth = new HealthBar(0,0,40,5,10,10);
+		        enemies.add(new Enemy(this, position.x, position.y, "Orc", enemyHealth));
+		    }
 			// play audio 
 			audio = new Audio("stranger-things-124008.mp3", null);
 	        audio.playMusic(true);
@@ -184,6 +184,10 @@ public class GameScreen implements Screen {
 		player.dispose();
 		audio.dispose();
 		hud.dispose();
+		// dispose enemies
+		for(Enemy enemy : enemies) {
+     	   enemy.dispose();
+    	}
 	}
 	
 	public TiledMapBench getMapGen() {

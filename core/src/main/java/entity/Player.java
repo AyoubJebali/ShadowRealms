@@ -32,6 +32,7 @@ public class Player extends Entity {
     private HealthBar healthBar;
     private Audio audio;
     public boolean isAttacking;
+    
     public Player(GameScreen screen) {
     	super();
     	this.screen=screen;
@@ -50,7 +51,6 @@ public class Player extends Entity {
         this.setScreenCord(startX,startY);
         this.stateTime = 0f;
         //Set player Coordinates same as camera 
-        setMapCord(mapGen.findFirstWalkable().x*16, mapGen.findFirstWalkable().y*16);
         setMapCord(mapGen.findFirstWalkable().x*16, mapGen.findFirstWalkable().y*16);
         // Load animations
         loadAnimations();
@@ -163,7 +163,7 @@ public class Player extends Entity {
             }
         }
         // Handle attack input
-        if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
             switch (direction) {
                 case 0 -> currentAnimation = attackDown;
                 case 1 -> currentAnimation = attackUp;
@@ -212,11 +212,19 @@ public class Player extends Entity {
             System.out.println("Current Health: " + health); 
         }
     }
-    public boolean AttackEnemy() {
-    if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
-    	return true;
+    private float attackCooldown = 0.5f;
+private float lastAttackTime = 0f;
+
+public boolean AttackEnemy() {
+    if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {  // Changed to justPressed
+        if (stateTime - lastAttackTime >= attackCooldown) {
+            lastAttackTime = stateTime;
+            isAttacking = true;
+            return true;
+        }
     }
-	return false;}
+    return false;
+}
       
     
     

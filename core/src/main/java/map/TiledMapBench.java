@@ -204,7 +204,7 @@ public class TiledMapBench extends InputAdapter {
 		return new Vector2(n.getRoomX()+n.getRoomWidth()/2, n.getRoomY()+n.getRoomHeight()/2);
 	}
 	
-	public boolean checkBlockedTile(float x , float y) {
+	public boolean checkBlockedTile(float x, float y) {
 		int newY = (int) (3200 - y);
 		int tileX = (int) ((x+8) / tileSize);
         int tileY = (int) ((newY-4) / tileSize);
