@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -32,15 +31,17 @@ import entity.HealthBar;
 import entity.Player;
 import map.TiledMapBench;
 import scenes.Hud;
+import scenes.Minimap;
 
 public class GameScreen implements Screen {
 		
 	private ShadowRealms game;
-	private String FILE_PATH = "C:\\Users\\youss\\eclipse-workspace\\Me\\leaderboard.txt";
+	private String FILE_PATH = System.getProperty("user.home") + "/.shadowrealms/leaderboard.txt";
 	//basic playscreen variables
     private OrthographicCamera camera;
     private Viewport gamePort;
     private Hud hud;
+    private Minimap minimap;
     
     // Virtual Screen resolution
     float virtualWidth = 320;  
@@ -59,7 +60,9 @@ public class GameScreen implements Screen {
 	public GameScreen(ShadowRealms game) {
 			this.game=game;
 			
-			game.batch = new SpriteBatch();
+			if (game.batch == null) {
+				game.batch = new SpriteBatch();
+			}
 			
 			this.enemyDefeated=0;
 			// Generate the map
@@ -80,6 +83,9 @@ public class GameScreen implements Screen {
 			//create our game HUD for scores/timers/level info
 	        hud = new Hud(game.batch, this);
 	        
+	        //create minimap (pass actual screen height)
+	        minimap = new Minimap(this, Gdx.graphics.getHeight());
+	        
 	        // Initialize enemies array
 	        enemies = new Array<Enemy>();
 	        
@@ -89,9 +95,25 @@ public class GameScreen implements Screen {
 			// initiate player
 			player = new Player(this);
 			
+			// Spawn enemies with different types for variety
+			java.util.Random random = new java.util.Random();
 			for(Vector2 position : this.enemyPositions) {
 		        HealthBar enemyHealth = new HealthBar(0,0,40,5,10,10);
-		        enemies.add(new Enemy(this, position.x, position.y, "Orc", enemyHealth));
+		        
+		        // Randomly select enemy type
+		        int typeRoll = random.nextInt(100);
+		        Enemy.EnemyType type;
+		        if (typeRoll < 40) {
+		            type = Enemy.EnemyType.NORMAL;  // 40% normal
+		        } else if (typeRoll < 65) {
+		            type = Enemy.EnemyType.FAST;    // 25% fast
+		        } else if (typeRoll < 85) {
+		            type = Enemy.EnemyType.AGGRESSIVE; // 20% aggressive
+		        } else {
+		            type = Enemy.EnemyType.TANK;    // 15% tank
+		        }
+		        
+		        enemies.add(new Enemy(this, position.x, position.y, "Orc", enemyHealth, type));
 		    }
 			// play audio 
 			audio = new Audio("stranger-things-124008.mp3", null);
@@ -112,7 +134,7 @@ public class GameScreen implements Screen {
 		    enemy.update();
 
 		    if (enemy.getState() == 2) {
-		        Hud.addScore(1);
+		        hud.addScore(1);
 		        enemy.dispose();
 		        iterator.remove(); // Safely remove the enemy
 		    }
@@ -134,6 +156,12 @@ public class GameScreen implements Screen {
 	@Override
 	public void render(float delta) {
 		update(delta);
+		
+		// Check if game is over after update - if so, don't render disposed resources
+		if(gameOver()){
+			return;
+		}
+		
 		//Clear the game screen with Black
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -148,15 +176,21 @@ public class GameScreen implements Screen {
 		}
         player.render(game.batch);
         game.batch.end();
+        
         //Set our batch to now draw what the Hud camera sees.
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
+        
+        // Render minimap on top
+        minimap.render(player, enemies);
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
 		gamePort.update(width,height);
+		if (minimap != null) {
+			minimap.resize(width, height);
+		}
 	}
 
 	@Override
@@ -179,15 +213,31 @@ public class GameScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-		map.dispose();
-		player.dispose();
-		audio.dispose();
-		hud.dispose();
-		// dispose enemies
-		for(Enemy enemy : enemies) {
-     	   enemy.dispose();
-    	}
+		if (map != null) {
+			map.dispose();
+		}
+		if (renderer != null) {
+			renderer.dispose();
+		}
+		if (player != null) {
+			player.dispose();
+		}
+		if (audio != null) {
+			audio.dispose();
+		}
+		if (hud != null) {
+			hud.dispose();
+		}
+		if (minimap != null) {
+			minimap.dispose();
+		}
+		if (enemies != null) {
+			for(Enemy enemy : enemies) {
+				enemy.dispose();
+			}
+		}
+		// NOTE: Do NOT dispose game.batch here - it's shared across all screens
+		// and will be disposed by ShadowRealms.dispose()
 	}
 	
 	public TiledMapBench getMapGen() {
@@ -202,13 +252,20 @@ public class GameScreen implements Screen {
 		return enemyDefeated;
 	}
 	public boolean gameOver(){
-        if(player.isDead() == true && player.getStateTime() > 1f){
+        if(player.isDead() && player.getStateTime() > 1f){
             return true;
         }
         return false;
     }
 	void saveScore(int newScore){
 		List<String> lines = new ArrayList<>();
+		
+		// Ensure the directory exists
+		java.io.File file = new java.io.File(FILE_PATH);
+		java.io.File parentDir = file.getParentFile();
+		if (parentDir != null && !parentDir.exists()) {
+			parentDir.mkdirs();
+		}
 
 	    // Step 1: Read the file line by line
 	    try (BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH))) {

@@ -2,7 +2,7 @@ package map;
 
 import java.util.Random;
 
-class BSPNode {
+public class BSPNode {
     int x, y, width, height; // The bounds of this node.
     BSPNode left, right = null;
     Boolean isRoom = false;

@@ -26,11 +26,11 @@ public class Hud implements Disposable{
     private Integer worldTimer;
     private boolean timeUp; // true when the world timer reaches 0
     private float timeCount;
-    private static Integer score;
+    private Integer score;
 
     //Scene2D widgets
     private Label countdownLabel;
-    private static Label scoreLabel;
+    private Label scoreLabel;
     private Label timeLabel;
     private Label levelLabel;
     private Label worldLabel;
@@ -93,7 +93,7 @@ public class Hud implements Disposable{
         }
     }
 
-    public static void addScore(int value){
+    public void addScore(int value){
         score += value;
         scoreLabel.setText(String.format("%06d", score));
     }

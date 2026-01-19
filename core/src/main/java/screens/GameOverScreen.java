@@ -55,7 +55,7 @@ public class GameOverScreen implements Screen {
     public void render(float delta) {
         if(Gdx.input.justTouched()) {
         	audio.stopMusic();
-            game.setScreen(new GameScreen((ShadowRealms) game));
+            game.setScreen(new MainMenuScreen((ShadowRealms) game));
             dispose();
         }
         Gdx.gl.glClearColor(0, 0, 0, 1);

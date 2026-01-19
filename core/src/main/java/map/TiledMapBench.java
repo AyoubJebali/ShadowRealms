@@ -220,6 +220,10 @@ public class TiledMapBench extends InputAdapter {
 		return map;
 	}
 	
+	public List<BSPNode> getRooms() {
+		return rooms;
+	}
+	
 	   /**
      * Generates random positions inside a rectangle where enemies can spawn.
      * @param startX Top-left corner X position.
@@ -244,18 +248,65 @@ public class TiledMapBench extends InputAdapter {
     }
 	public ArrayList<Vector2> getEnemySpawn(){
 		ArrayList<Vector2> spawnPositions = new ArrayList<>();
+		
+		// Get player starting position (first room center)
+		Vector2 playerStart = findFirstWalkable();
+		float playerStartX = playerStart.x * 16;
+		float playerStartY = playerStart.y * 16;
+		float safeRadius = 150f; // Minimum distance from player spawn
+		
+		int roomIndex = 0;
 		for (BSPNode room : rooms) {
-	        // Get spawn positions for the current room and add them to the list
-	        spawnPositions.addAll(
-	            getRandomEnemySpawnPositions(
+			// Skip the first room (player starting room) - keep it safe
+			if (roomIndex == 0) {
+				roomIndex++;
+				continue;
+			}
+			
+			// Reduce enemy count based on room distance from start
+			// Closer rooms get fewer enemies, farther rooms get more
+			int enemyCount;
+			if (roomIndex == 1) {
+				enemyCount = 2; // Very few in adjacent room
+			} else if (roomIndex == 2) {
+				enemyCount = 3;
+			} else if (roomIndex <= 4) {
+				enemyCount = 5;
+			} else {
+				enemyCount = 7; // Max 7 per room for distant rooms
+			}
+			
+	        // Get spawn positions for the current room
+	        ArrayList<Vector2> roomSpawns = getRandomEnemySpawnPositions(
 	                room.getRoomX() * 16,
 	                room.getRoomY() * 16,
 	                room.getRoomWidth() * 16,
 	                room.getRoomHeight() * 16,
-	                20 // Number of spawns per room
-	            )
+	                enemyCount
 	        );
+	        
+	        // Only filter spawns in room 1 (adjacent to start)
+	        // Other rooms are far enough away already
+	        if (roomIndex == 1) {
+	        	for (Vector2 spawn : roomSpawns) {
+		        	float dx = spawn.x - playerStartX;
+		        	float dy = spawn.y - playerStartY;
+		        	float distance = (float) Math.sqrt(dx * dx + dy * dy);
+		        	
+		        	// Only add spawn if it's far enough from player start
+		        	if (distance >= safeRadius) {
+		        		spawnPositions.add(spawn);
+		        	}
+		        }
+	        } else {
+	        	// For other rooms, add all spawns
+	        	spawnPositions.addAll(roomSpawns);
+	        }
+	        
+	        roomIndex++;
 	    }
+		
+		System.out.println("Total enemies spawned: " + spawnPositions.size() + " across " + (roomIndex - 1) + " rooms");
 		return spawnPositions;
 	}
 

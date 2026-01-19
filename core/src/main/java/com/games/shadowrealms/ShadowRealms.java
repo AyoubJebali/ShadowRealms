@@ -2,7 +2,7 @@ package com.games.shadowrealms;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import screens.GameScreen;
+import screens.MainMenuScreen;
 
 public class ShadowRealms extends Game {
 	
@@ -12,17 +12,16 @@ public class ShadowRealms extends Game {
     
 	@Override
 	public void create() {
-		// TODO Auto-generated method stub
-		
-		
-		setScreen(new GameScreen(this));
+		batch = new SpriteBatch();
+		setScreen(new MainMenuScreen(this));
 	}
 	
 	@Override
 	public void dispose() {
 		super.dispose();
-		
-		//batch.dispose();
+		if (batch != null) {
+			batch.dispose();
+		}
 	}
 	public String getPlayerName() {
 		return this.playerName;

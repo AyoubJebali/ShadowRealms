@@ -255,8 +255,12 @@ public boolean AttackEnemy() {
         if (attackLeft != null) attackLeft.getKeyFrames()[0].getTexture().dispose();
         if (attackRight != null) attackRight.getKeyFrames()[0].getTexture().dispose();
         
-        healthBar.dispose();
-
+        if (healthBar != null) {
+            healthBar.dispose();
+        }
+        if (audio != null) {
+            audio.dispose();
+        }
     }
     void loadAnimations() {
     	walkDown = createAnimation("run_down_40x40.png",6);
